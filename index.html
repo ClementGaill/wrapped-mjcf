@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ton Profil Militant 2025</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --jc-red: #E93F3F;
+            --jc-yellow: #FFE781;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--jc-red);
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            color: var(--jc-red);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* --- BACKGROUND --- */
+        .background-blobs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: 
+                radial-gradient(circle at 80% 20%, var(--jc-yellow) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, var(--jc-yellow) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, #ff5e5e 0%, var(--jc-red) 70%);
+            filter: blur(40px);
+            opacity: 0.9;
+        }
+
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            opacity: 0.15;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- CONTAINER --- */
+        #app {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* --- CARDS --- */
+        .card-container {
+            width: 100%;
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 30px 25px;
+            width: 100%;
+            box-shadow: 
+                0 10px 30px rgba(233, 63, 63, 0.3),
+                0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* INTRO */
+        #intro-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #intro-card:active { transform: scale(0.98); }
+
+        .big-question {
+            font-family: 'Montserrat Alternates', sans-serif;
+            font-size: 8rem;
+            font-weight: 800;
+            color: var(--jc-red);
+            line-height: 1;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite ease-in-out;
+            text-shadow: 3px 3px 0px var(--jc-yellow);
+        }
+
+        .cta-text {
+            font-family: 'Montserrat Alternates', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--jc-red);
+        }
+
+        /* RESULT */
+        #result-card {
+            display: none;
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            padding-bottom: 40px;
+        }
+
+        #result-card.visible {
+            display: block;
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Styles SVG / Image */
+        .profile-icon-container {
+            width: 120px;
+            height: 120px;
+            position: 0 -25px 0 0;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .profile-svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #FFE781;
+            border-radius: 200%;
+        }
+        .profile-title {
+            font-family: 'Montserrat Alternates', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            color: var(--jc-red);
+            text-transform: uppercase;
+        }
+        
+        /* NOUVEAU BLOC STATISTIQUE */
+        .stat-only-block {
+            text-align: center;
+            margin: 30px auto;
+            padding: 20px;
+            background: var(--jc-yellow); /* Mise en évidence en jaune */
+            border-radius: 10px;
+            font-size: 1.2rem;
+            line-height: 1.4;
+            font-weight: 600;
+            color: var(--jc-red);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            
+            /* Animation */
+            opacity: 0; 
+            transform: translateY(10px);
+        }
+
+        /* Classe pour déclencher l'animation */
+        .reveal-1 { animation: slideUpFade 0.5s ease forwards 0.3s; }
+
+        .stat-highlight { 
+            font-weight: 800; 
+            color: var(--jc-red); /* Garde la couleur rouge pour les chiffres */
+        }
+
+        .share-btn {
+            background: var(--jc-red);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-family: 'Montserrat Alternates', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(233, 63, 63, 0.4);
+            text-decoration: none;
+            display: inline-block;
+            animation: slideUpFade 0.5s ease forwards 0.7s; /* Délai réduit */
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        /* LOGO FOOTER */
+        .logo-footer {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            bottom: 30px;
+            opacity: 0.9;
+            z-index: 20;
+        }
+        .logo-footer img {
+            fill: var(--white);
+            height: 110px;
+        }
+
+        /* --- ANIMATIONS KEYFRAMES --- */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes slideUpFade {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-blobs"></div>
+    <div class="noise-overlay"></div>
+
+    <div id="app">
+        <div class="card-container">
+            
+            <div class="card" id="intro-card" onclick="revealProfile()">
+                <div class="big-question">?</div>
+                <div class="cta-text">Ton profil militant</div>
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 10px;">Découvre ta vraie nature politique</div>
+            </div>
+
+            <div class="card" id="result-card">
+                <div id="dynamic-content"></div>
+                <button class="share-btn" onclick="dummyShare()">Partager en Story 📸</button>
+            </div>
+
+        </div>
+
+        <div class="logo-footer">
+            <img src="Icons/logo.svg" alt="logo JC">
+        </div>
+    </div>
+
+    <script>
+        // --- DONNÉES DES PROFILS ---
+        const profiles = [
+            {
+                title: "L'Anti-Capitaliste",
+                svg: "Icons/Anti-Capitaliste.svg", 
+                power: "Voit l'exploitation là où les autres voient du 'management'.",
+                stat: "A dit 'C'est la faute du profit' <span class='stat-highlight'>850 fois</span> cette année.",
+                extraLabel: "Devise",
+                extra: "Nos vies valent plus que leurs crédits."
+            },
+            {
+                title: "Le/La Féministe",
+                svg: "Icons/Féministe.svg",
+                power: "Sait que le patriarcat et le capitalisme sont les deux têtes du même monstre.",
+                stat: "<span class='stat-highlight'>0 tolérance</span> pour les sexistes, même de gauche.",
+                extraLabel: "But",
+                extra: "L'égalité salariale ou la grève générale."
+            },
+            {
+                title: "L'Anti-Impérialiste",
+                svg: "Icons/Anti-Impérialiste.svg",
+                power: "Comprend pourquoi le prix de ton essence dépend des guerres de l'OTAN.",
+                stat: "A manifesté pour la Palestine <span class='stat-highlight'>tous les samedis</span>.",
+                extraLabel: "Slogan",
+                extra: "Ni Washington, ni Moscou, la paix des peuples."
+            },
+            {
+                title: "L'Écolo-Marxiste",
+                svg: "Icons/Écolo.svg",
+                power: "Sait que le 'capitalisme vert', c'est du vent (et pas de l'éolien).",
+                stat: "Préfère nationaliser Total que trier ses emails.",
+                extraLabel: "Vision",
+                extra: "La planète d'abord, les dividendes jamais."
+            },
+            {
+                title: "L'anti-Parcoursup",
+                svg: "Icons/Sélection.svg",
+                power: "Refuse qu'un algorithme décide de son avenir.",
+                stat: "A maudit Parcoursup <span class='stat-highlight'>4 000 fois</span> en juin.",
+                extraLabel: "Projet",
+                extra: "La fac ouverte à tous, point barre."
+            },
+            {
+                title: "Le/La Prolo",
+                svg: "Icons/Prolo.svg",
+                power: "Sait que c'est le travailleur qui produit la richesse, pas le patron.",
+                stat: "A produit <span class='stat-highlight'>10x son salaire</span> pour la boîte cette année.",
+                extraLabel: "Demande",
+                extra: "Augmentez les salaires, pas les actionnaires."
+            },
+            {
+                title: "L'Antifa",
+                svg: "Icons/Antifa.svg",
+                power: "Ne laisse pas un millimètre de terrain au RN en Bretagne.",
+                stat: "A décollé plus de stickers fafs qu'il n'a bu de cafés.",
+                extraLabel: "Règle",
+                extra: "Pas de fachos dans nos quartiers, pas de quartier pour les fachos."
+            },
+            {
+                title: "Le/La Défenseur du Public",
+                svg: "Icons/Défenseur.svg",
+                power: "Se bat pour que la santé et le train ne soient pas des marchandises.",
+                stat: "S'est énervé(e) <span class='stat-highlight'>120 fois</span> contre la casse de l'hôpital.",
+                extraLabel: "Rêve",
+                extra: "Des services publics partout, pour tous, tout le temps."
+            },
+            {
+                title: "Le/La Pacifiste",
+                svg: "Icons/Pacifiste.svg",
+                power: "Sait que l'argent des armes serait mieux dans les écoles.",
+                stat: "A signé la pétition pour la paix avant tout le monde.",
+                extraLabel: "Crédo",
+                extra: "La guerre, c'est le massacre de pauvres au profit de riches."
+            },
+            {
+                title: "Le/La Militant(e)",
+                svg: "Icons/Militant.svg",
+                power: "Va parler politique à la sortie des lycées quand tout le monde rentre chez soi.",
+                stat: "A distribué <span class='stat-highlight'>3 000 tracts</span> (et convaincu 50 personnes).",
+                extraLabel: "Force",
+                extra: "Ramener la politique dans la vraie vie."
+            },
+            {
+                title: "Le/La Révolutionnaire",
+                svg: "Icons/Révolutionnaire.svg",
+                power: "Ne veut pas juste 'mieux vivre', veut changer le système.",
+                stat: "Optimisme révolutionnaire à <span class='stat-highlight'>100%</span>.",
+                extraLabel: "Horizon",
+                extra: "Des 'Jours Heureux' pour notre génération."
+            }
+        ];
+
+        let isRevealed = false;
+
+        function revealProfile() {
+            if(isRevealed) return;
+            isRevealed = true;
+
+            const introCard = document.getElementById('intro-card');
+            const resultCard = document.getElementById('result-card');
+            const contentContainer = document.getElementById('dynamic-content');
+
+            // Animation de départ
+            introCard.classList.add('shake');
+
+            // Choix aléatoire
+            const randomIndex = Math.floor(Math.random() * profiles.length);
+            const p = profiles[randomIndex];
+
+            // Construction HTML SANS les blocs Power et Extra
+            contentContainer.innerHTML = `
+                <div class="profile-icon-container">
+                    <img src="${p.svg}" alt="${p.title}" class="profile-svg">
+                </div>
+                <h2 class="profile-title">${p.title}</h2>
+                
+                <div class="stat-only-block reveal-1">
+                    ${p.stat}
+                </div>
+            `;
+
+            // Transition
+            setTimeout(() => {
+                introCard.style.display = 'none';
+                resultCard.classList.add('visible');
+                triggerConfetti();
+            }, 600);
+        }
+
+        function triggerConfetti() {
+            var duration = 2500;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#E93F3F', '#FFE781', '#ffffff']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#E93F3F', '#FFE781', '#ffffff']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        function dummyShare() {
+            alert("Capture d'écran pour partager en story ! 📸");
+        }
+    </script>
+</body>
+</html>
