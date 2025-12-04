@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ton Profil Militant 2025</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;700;800;900&family=Poppins:wght@400;600;800&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <style>
+        /* --- RESET ET VARIABLES GLOBALES --- */
         :root {
             --jc-red: #E93F3F;
             --jc-yellow: #FFE781;
             --white: #ffffff;
+            --principal: rgba(233, 63, 63, 1);
         }
 
         * {
@@ -24,13 +31,14 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* --- STYLE DE L'APP (INTERFACE UTILISATEUR) --- */
         body {
             font-family: 'Poppins', sans-serif;
             background-color: var(--jc-red);
-            height: 100vh;
-            height: 100dvh;
+            min-height: 100vh;
             width: 100vw;
             overflow: hidden;
+            /* Empêche le scroll à cause du canvas caché */
             color: var(--jc-red);
             display: flex;
             justify-content: center;
@@ -38,7 +46,6 @@
             position: relative;
         }
 
-        /* --- BACKGROUND --- */
         .background-blobs {
             position: absolute;
             top: 0;
@@ -46,12 +53,10 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            background: 
-                radial-gradient(circle at 80% 20%, var(--jc-yellow) 0%, transparent 50%),
-                radial-gradient(circle at 20% 80%, var(--jc-yellow) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, #ff5e5e 0%, var(--jc-red) 70%);
+            background: radial-gradient(circle at 80% 20%, var(--jc-yellow) 0%, transparent 50%), radial-gradient(circle at 20% 80%, var(--jc-yellow) 0%, transparent 40%), radial-gradient(circle at 50% 50%, #ff5e5e 0%, var(--jc-red) 70%);
             filter: blur(40px);
             opacity: 0.9;
+            pointer-events: none;
         }
 
         .noise-overlay {
@@ -66,7 +71,6 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* --- CONTAINER --- */
         #app {
             position: relative;
             z-index: 10;
@@ -80,7 +84,6 @@
             padding: 20px;
         }
 
-        /* --- CARDS --- */
         .card-container {
             width: 100%;
             perspective: 1000px;
@@ -95,15 +98,12 @@
             border-radius: 24px;
             padding: 30px 25px;
             width: 100%;
-            box-shadow: 
-                0 10px 30px rgba(233, 63, 63, 0.3),
-                0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(233, 63, 63, 0.3), 0 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
             position: relative;
             transform-style: preserve-3d;
         }
 
-        /* INTRO */
         #intro-card {
             display: flex;
             flex-direction: column;
@@ -113,7 +113,10 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        #intro-card:active { transform: scale(0.98); }
+
+        #intro-card:active {
+            transform: scale(0.98);
+        }
 
         .big-question {
             font-family: 'Montserrat Alternates', sans-serif;
@@ -133,7 +136,6 @@
             color: var(--jc-red);
         }
 
-        /* RESULT */
         #result-card {
             display: none;
             opacity: 0;
@@ -146,17 +148,15 @@
             animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* Styles SVG / Image */
         .profile-icon-container {
             width: 120px;
             height: 120px;
-            position: 0 -25px 0 0;
             margin: 0 auto 15px auto;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
+
         .profile-svg {
             width: 100%;
             height: 100%;
@@ -164,6 +164,7 @@
             background-color: #FFE781;
             border-radius: 200%;
         }
+
         .profile-title {
             font-family: 'Montserrat Alternates', sans-serif;
             font-weight: 800;
@@ -173,31 +174,24 @@
             color: var(--jc-red);
             text-transform: uppercase;
         }
-        
-        /* NOUVEAU BLOC STATISTIQUE */
+
         .stat-only-block {
             text-align: center;
             margin: 30px auto;
             padding: 20px;
-            background: var(--jc-yellow); /* Mise en évidence en jaune */
+            background: var(--jc-yellow);
             border-radius: 10px;
             font-size: 1.2rem;
             line-height: 1.4;
             font-weight: 600;
             color: var(--jc-red);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            
-            /* Animation */
-            opacity: 0; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
             transform: translateY(10px);
         }
 
-        /* Classe pour déclencher l'animation */
-        .reveal-1 { animation: slideUpFade 0.5s ease forwards 0.3s; }
-
-        .stat-highlight { 
-            font-weight: 800; 
-            color: var(--jc-red); /* Garde la couleur rouge pour les chiffres */
+        .reveal-1 {
+            animation: slideUpFade 0.5s ease forwards 0.3s;
         }
 
         .share-btn {
@@ -214,52 +208,239 @@
             box-shadow: 0 5px 15px rgba(233, 63, 63, 0.4);
             text-decoration: none;
             display: inline-block;
-            animation: slideUpFade 0.5s ease forwards 0.7s; /* Délai réduit */
+            animation: slideUpFade 0.5s ease forwards 0.7s;
             opacity: 0;
             transform: translateY(10px);
         }
 
-        /* LOGO FOOTER */
         .logo-footer {
             position: absolute;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            bottom: 30px;
+            bottom: 0px;
             opacity: 0.9;
             z-index: 20;
-        }
-        .logo-footer img {
-            fill: var(--white);
-            height: 110px;
+            pointer-events: none;
         }
 
-        /* --- ANIMATIONS KEYFRAMES --- */
+        .logo-footer img {
+            fill: var(--white);
+            height: 70px;
+        }
+
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1) rotate(5deg); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1) rotate(5deg);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
+
         @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
         }
+
         @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.9) translateY(20px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+            0% {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
+
         @keyframes slideUpFade {
-            to { opacity: 1; transform: translateY(0); }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- ZONE DE GÉNÉRATION (CACHÉE MAIS EXISTANTE) --- */
+        #generator-container {
+            position: fixed;
+            top: 0;
+            left: -10000px;
+            /* On le sort de l'écran */
+            width: 1080px;
+            height: 1920px;
+            overflow: hidden;
+            background: white;
+            /* Important pour le fond de l'image */
+        }
+
+        /* --- TON STYLE CANVAS ORIGINAL (Adapté) --- */
+        .instagram-story {
+            background-color: var(--principal);
+            overflow: hidden;
+            width: 1080px;
+            height: 1920px;
+            position: relative;
+        }
+
+        .instagram-story .ellipse {
+            position: absolute;
+            top: -1328px;
+            left: -1024px;
+            width: 2656px;
+            height: 2656px;
+            background-color: #ffe781;
+            border-radius: 1328px;
+        }
+
+        .instagram-story .logo-mjcf {
+            position: absolute;
+            top: 1554px;
+            left: 454px;
+            width: 172px;
+            height: 172px;
+            aspect-ratio: 1;
+        }
+
+        .instagram-story .title {
+            position: absolute;
+            top: 276px;
+            left: 110px;
+            width: 868px;
+            height: 129px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0px 9px 58.3px #00000040;
+            font-family: "Montserrat Alternates", Helvetica, sans-serif;
+            font-weight: 900;
+            /* Black */
+            color: #e83e3e;
+            font-size: 90.8px;
+            text-align: center;
+            letter-spacing: 0;
+            line-height: normal;
+        }
+
+        .instagram-story .profil-name {
+            top: 875px;
+            font-family: "Montserrat Alternates", Helvetica, sans-serif;
+            font-weight: 900;
+            /* Black */
+            color: #e83e3e;
+            font-size: 56.1px;
+            position: absolute;
+            left: 110px;
+            width: 868px;
+            height: 129px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0px 9px 58.3px #00000040;
+            text-align: center;
+            letter-spacing: 0;
+            line-height: 1.1;
+        }
+
+        .instagram-story .profil-desc {
+            top: 960px;
+            font-family: "Montserrat Alternates", Helvetica, sans-serif;
+            font-weight: 400;
+            /* Regular */
+            color: #000000;
+            font-size: 34.7px;
+            position: absolute;
+            left: 110px;
+            width: 868px;
+            height: 129px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0px 9px 58.3px #00000040;
+            text-align: center;
+            letter-spacing: 0;
+            line-height: normal;
+        }
+
+        .instagram-story .adhesion-text {
+            top: 1425px;
+            left: 130px;
+            position: absolute;
+            width: 868px;
+            height: 129px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0px 9px 58.3px #00000040;
+            font-family: "Poppins", Helvetica, sans-serif;
+            font-weight: 600;
+            /* SemiBold */
+            color: #ffffff;
+            font-size: 34.7px;
+            text-align: center;
+            letter-spacing: 0;
+            line-height: normal;
+        }
+
+        .instagram-story .adhesion-socialmedia {
+            top: 1727px;
+            left: 110px;
+            position: absolute;
+            width: 868px;
+            height: 129px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0px 9px 58.3px #00000040;
+            font-family: "Poppins", Helvetica, sans-serif;
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 34.7px;
+            text-align: center;
+            letter-spacing: 0;
+            line-height: normal;
+        }
+
+        .instagram-story .SVG-logo {
+            position: absolute;
+            top: 514px;
+            left: 359px;
+            width: 361px;
+            height: 361px;
+            border-radius: 200px;
+            background-size: cover;
+            background-position: 50% 50%;
+            /* L'image sera injectée dynamiquement par JS */
         }
     </style>
 </head>
+
 <body>
 
     <div class="background-blobs"></div>
@@ -267,7 +448,6 @@
 
     <div id="app">
         <div class="card-container">
-            
             <div class="card" id="intro-card" onclick="revealProfile()">
                 <div class="big-question">?</div>
                 <div class="cta-text">Ton profil militant</div>
@@ -276,9 +456,8 @@
 
             <div class="card" id="result-card">
                 <div id="dynamic-content"></div>
-                <button class="share-btn" onclick="dummyShare()">Partager en Story 📸</button>
+                <button class="share-btn" onclick="generateAndShare()">Partager en Story 📸</button>
             </div>
-
         </div>
 
         <div class="logo-footer">
@@ -286,129 +465,64 @@
         </div>
     </div>
 
+    <div id="generator-container">
+        <div class="instagram-story">
+            <div class="ellipse"></div>
+            <img class="logo-mjcf" src="Icons/logo.svg" />
+            <div class="title">Mon profil militant 2025 :</div>
+
+            <div class="SVG-logo" id="gen-svg-logo"></div>
+            <div class="profil-name" id="gen-profil-name">Nom du profil</div>
+            <div class="profil-desc" id="gen-profil-desc">Description du profil</div>
+
+            <div class="adhesion-text">Adhère au MJCF: jeunes-communistes.fr</div>
+            <div class="adhesion-socialmedia">@mjcf_56 - linktr.ee/mjcf56</div>
+        </div>
+    </div>
+
     <script>
-        // --- DONNÉES DES PROFILS ---
+        // --- DONNÉES ---
         const profiles = [
-            {
-                title: "L'Anti-Capitaliste",
-                svg: "Icons/Anti-Capitaliste.svg", 
-                power: "Voit l'exploitation là où les autres voient du 'management'.",
-                stat: "A dit 'C'est la faute du profit' <span class='stat-highlight'>850 fois</span> cette année.",
-                extraLabel: "Devise",
-                extra: "Nos vies valent plus que leurs crédits."
-            },
-            {
-                title: "Le/La Féministe",
-                svg: "Icons/Féministe.svg",
-                power: "Sait que le patriarcat et le capitalisme sont les deux têtes du même monstre.",
-                stat: "<span class='stat-highlight'>0 tolérance</span> pour les sexistes, même de gauche.",
-                extraLabel: "But",
-                extra: "L'égalité salariale ou la grève générale."
-            },
-            {
-                title: "L'Anti-Impérialiste",
-                svg: "Icons/Anti-Impérialiste.svg",
-                power: "Comprend pourquoi le prix de ton essence dépend des guerres de l'OTAN.",
-                stat: "A manifesté pour la Palestine <span class='stat-highlight'>tous les samedis</span>.",
-                extraLabel: "Slogan",
-                extra: "Ni Washington, ni Moscou, la paix des peuples."
-            },
-            {
-                title: "L'Écolo-Marxiste",
-                svg: "Icons/Écolo.svg",
-                power: "Sait que le 'capitalisme vert', c'est du vent (et pas de l'éolien).",
-                stat: "Préfère nationaliser Total que trier ses emails.",
-                extraLabel: "Vision",
-                extra: "La planète d'abord, les dividendes jamais."
-            },
-            {
-                title: "L'anti-Parcoursup",
-                svg: "Icons/Sélection.svg",
-                power: "Refuse qu'un algorithme décide de son avenir.",
-                stat: "A maudit Parcoursup <span class='stat-highlight'>4 000 fois</span> en juin.",
-                extraLabel: "Projet",
-                extra: "La fac ouverte à tous, point barre."
-            },
-            {
-                title: "Le/La Prolo",
-                svg: "Icons/Prolo.svg",
-                power: "Sait que c'est le travailleur qui produit la richesse, pas le patron.",
-                stat: "A produit <span class='stat-highlight'>10x son salaire</span> pour la boîte cette année.",
-                extraLabel: "Demande",
-                extra: "Augmentez les salaires, pas les actionnaires."
-            },
-            {
-                title: "L'Antifa",
-                svg: "Icons/Antifa.svg",
-                power: "Ne laisse pas un millimètre de terrain au RN en Bretagne.",
-                stat: "A décollé plus de stickers fafs qu'il n'a bu de cafés.",
-                extraLabel: "Règle",
-                extra: "Pas de fachos dans nos quartiers, pas de quartier pour les fachos."
-            },
-            {
-                title: "Le/La Défenseur du Public",
-                svg: "Icons/Défenseur.svg",
-                power: "Se bat pour que la santé et le train ne soient pas des marchandises.",
-                stat: "S'est énervé(e) <span class='stat-highlight'>120 fois</span> contre la casse de l'hôpital.",
-                extraLabel: "Rêve",
-                extra: "Des services publics partout, pour tous, tout le temps."
-            },
-            {
-                title: "Le/La Pacifiste",
-                svg: "Icons/Pacifiste.svg",
-                power: "Sait que l'argent des armes serait mieux dans les écoles.",
-                stat: "A signé la pétition pour la paix avant tout le monde.",
-                extraLabel: "Crédo",
-                extra: "La guerre, c'est le massacre de pauvres au profit de riches."
-            },
-            {
-                title: "Le/La Militant(e)",
-                svg: "Icons/Militant.svg",
-                power: "Va parler politique à la sortie des lycées quand tout le monde rentre chez soi.",
-                stat: "A distribué <span class='stat-highlight'>3 000 tracts</span> (et convaincu 50 personnes).",
-                extraLabel: "Force",
-                extra: "Ramener la politique dans la vraie vie."
-            },
-            {
-                title: "Le/La Révolutionnaire",
-                svg: "Icons/Révolutionnaire.svg",
-                power: "Ne veut pas juste 'mieux vivre', veut changer le système.",
-                stat: "Optimisme révolutionnaire à <span class='stat-highlight'>100%</span>.",
-                extraLabel: "Horizon",
-                extra: "Des 'Jours Heureux' pour notre génération."
-            }
+            { title: "L'Anti-Capitaliste", svg: "Icons/Anti-Capitaliste.svg", stat: "A dit 'C'est la faute du profit' 850 fois cette année." },
+            { title: "Le/La Féministe", svg: "Icons/Féministe.svg", stat: "0 tolérance pour les sexistes, même de gauche." },
+            { title: "L'Anti-Impérialiste", svg: "Icons/Anti-Impérialiste.svg", stat: "A manifesté pour la Palestine tous les samedis." },
+            { title: "L'Écolo-Marxiste", svg: "Icons/Écolo.svg", stat: "Préfère nationaliser Total que trier ses emails." },
+            { title: "L'anti-Parcoursup", svg: "Icons/Sélection.svg", stat: "A maudit Parcoursup 4 000 fois en juin." },
+            { title: "Le/La Prolo", svg: "Icons/Prolo.svg", stat: "A produit 10x son salaire pour la boîte cette année." },
+            { title: "L'Antifa", svg: "Icons/Antifa.svg", stat: "A décollé plus de stickers fafs qu'il n'a bu de cafés." },
+            { title: "Le/La Défenseur du Public", svg: "Icons/Défenseur.svg", stat: "S'est énervé(e) 120 fois contre la casse de l'hôpital." },
+            { title: "Le/La Pacifiste", svg: "Icons/Pacifiste.svg", stat: "A signé la pétition pour la paix avant tout le monde." },
+            { title: "Le/La Militant(e)", svg: "Icons/Militant.svg", stat: "A distribué 3 000 tracts (et convaincu 50 personnes)." },
+            { title: "Le/La Révolutionnaire", svg: "Icons/Révolutionnaire.svg", stat: "Optimisme révolutionnaire à 100%." }
         ];
 
+        let currentProfile = null;
         let isRevealed = false;
 
+        // --- AFFICHAGE DU PROFIL (UI WEB) ---
         function revealProfile() {
-            if(isRevealed) return;
+            if (isRevealed) return;
             isRevealed = true;
 
             const introCard = document.getElementById('intro-card');
             const resultCard = document.getElementById('result-card');
             const contentContainer = document.getElementById('dynamic-content');
 
-            // Animation de départ
             introCard.classList.add('shake');
 
-            // Choix aléatoire
             const randomIndex = Math.floor(Math.random() * profiles.length);
-            const p = profiles[randomIndex];
+            currentProfile = profiles[randomIndex];
 
-            // Construction HTML SANS les blocs Power et Extra
             contentContainer.innerHTML = `
-                <div class="profile-icon-container">
-                    <img src="${p.svg}" alt="${p.title}" class="profile-svg">
-                </div>
-                <h2 class="profile-title">${p.title}</h2>
-                
-                <div class="stat-only-block reveal-1">
-                    ${p.stat}
-                </div>
-            `;
+            <div class="profile-icon-container">
+                <img src="${currentProfile.svg}" alt="${currentProfile.title}" class="profile-svg">
+            </div>
+            <h2 class="profile-title">${currentProfile.title}</h2>
+            <div class="stat-only-block reveal-1">
+                ${currentProfile.stat}
+            </div>
+        `;
 
-            // Transition
             setTimeout(() => {
                 introCard.style.display = 'none';
                 resultCard.classList.add('visible');
@@ -416,35 +530,62 @@
             }, 600);
         }
 
+        // --- GÉNÉRATION DE L'IMAGE AVEC HTML2CANVAS ---
+        function generateAndShare() {
+            if (!currentProfile) return;
+
+            const btn = document.querySelector('.share-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Génération...";
+            btn.disabled = true;
+
+            // 1. On remplit le template HTML caché avec les données du profil actuel
+            document.getElementById('gen-profil-name').innerText = currentProfile.title.toUpperCase();
+            document.getElementById('gen-profil-desc').innerText = currentProfile.stat;
+            document.getElementById('gen-svg-logo').style.backgroundImage = `url(${currentProfile.svg})`;
+
+            // 2. On attend un tout petit peu pour être sûr que le DOM est à jour (par sécurité)
+            setTimeout(() => {
+                const elementToCapture = document.querySelector('.instagram-story');
+
+                html2canvas(elementToCapture, {
+                    scale: 1, // On garde l'échelle 1 car l'élément fait déjà 1080px de large
+                    useCORS: true, // Important pour charger les images locales/externes
+                    allowTaint: true,
+                    backgroundColor: null // Fond transparent ou géré par le CSS
+                }).then(canvas => {
+                    // Création du lien de téléchargement
+                    const pngUrl = canvas.toDataURL('image/png');
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = pngUrl;
+                    downloadLink.download = `profil-militant-${Date.now()}.png`;
+
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+
+                    // Reset bouton
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }).catch(err => {
+                    console.error("Erreur génération:", err);
+                    alert("Erreur lors de la génération de l'image.");
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                });
+            }, 100);
+        }
+
         function triggerConfetti() {
             var duration = 2500;
             var end = Date.now() + duration;
-
             (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#E93F3F', '#FFE781', '#ffffff']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#E93F3F', '#FFE781', '#ffffff']
-                });
-
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#E93F3F', '#FFE781', '#ffffff'] });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#E93F3F', '#FFE781', '#ffffff'] });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
             }());
-        }
-
-        function dummyShare() {
-            alert("Capture d'écran pour partager en story ! 📸");
         }
     </script>
 </body>
+
 </html>
